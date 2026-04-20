@@ -16,11 +16,11 @@ export function createTurbulence(): Force<TurbulenceConfig> {
   return {
     id: "turbulence",
     label: "Turbulência",
-    enabled: true,
+    enabled: false,
     config: {
-      strength: 0.15,
-      scale: 0.003,
-      speed: 0.25,
+      strength: 0.8,
+      scale: 0.004,
+      speed: 0.5,
     },
     schema: {
       strength: { kind: "slider", label: "Força", min: 0, max: 4, step: 0.01 },
