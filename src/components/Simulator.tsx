@@ -7,18 +7,17 @@ import { useSimulation } from "@/lib/hooks/useSimulation";
 import { createCanvas2DRenderer } from "@/lib/render/canvas2d";
 import { spawnShockwave } from "@/lib/physics/world";
 
-const PANEL_WIDTH = 280;
-
 export function Simulator() {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [darkMode, setDarkMode] = useState(true);
   const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const [, forceRender] = useState(0);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
     const compute = () => {
       setSize({
-        width: Math.max(window.innerWidth - PANEL_WIDTH, 0),
+        width: window.innerWidth,
         height: window.innerHeight,
       });
     };
@@ -33,6 +32,23 @@ export function Simulator() {
     else root.classList.remove("dark");
   }, [darkMode]);
 
+  // Toggle painel com tecla L (modo Lab)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "l" || e.key === "L") {
+        const target = e.target as HTMLElement | null;
+        if (
+          target &&
+          (target.tagName === "INPUT" || target.tagName === "TEXTAREA")
+        )
+          return;
+        setPanelOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const renderer = useMemo(() => createCanvas2DRenderer(), []);
 
   const sim = useSimulation({
@@ -42,7 +58,7 @@ export function Simulator() {
     canvas: canvasEl,
   });
 
-  // Pointer tracking → World.pointer (read by mouseAttractor force)
+  // Pointer tracking → World.pointer
   useEffect(() => {
     if (!canvasEl || !sim.world) return;
     const world = sim.world;
@@ -75,40 +91,69 @@ export function Simulator() {
   }, [canvasEl, sim.world]);
 
   return (
-    <div className="flex w-screen h-screen overflow-hidden">
-      <div className="flex-1 relative">
-        {size.width > 0 && (
-          <Canvas
-            width={size.width}
-            height={size.height}
-            onCanvasReady={setCanvasEl}
-          />
-        )}
-      </div>
-      <ControlPanel
-        world={sim.world}
-        isRunning={sim.isRunning}
-        setRunning={sim.setRunning}
-        onReset={sim.reset}
-        onClear={sim.clear}
-        onSpawn={sim.spawn}
-        onSetTargetCount={sim.setTargetCount}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        particleCount={sim.world?.particles.length ?? 0}
-        fps={sim.fps}
-        setForceEnabled={sim.setForceEnabled}
-        setForceConfig={sim.setForceConfig}
-        setConstraintEnabled={sim.setConstraintEnabled}
-        setConstraintConfig={sim.setConstraintConfig}
-        renderOptions={renderer.options}
-        onRenderOptionChange={(key, value) => {
-          (renderer.options as unknown as Record<string, number | boolean | string>)[
-            key as string
-          ] = value;
-          forceRender((v) => v + 1);
+    <div className="relative w-screen h-screen overflow-hidden">
+      {/* Canvas em tela cheia */}
+      {size.width > 0 && (
+        <Canvas
+          width={size.width}
+          height={size.height}
+          onCanvasReady={setCanvasEl}
+        />
+      )}
+
+      {/* Botão flutuante toggle do painel */}
+      <button
+        onClick={() => setPanelOpen((v) => !v)}
+        aria-label={panelOpen ? "Fechar painel" : "Abrir painel (tecla L)"}
+        title={panelOpen ? "Fechar (L)" : "Abrir painel (L)"}
+        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-lg border border-cyan-400/40 bg-neutral-950/80 hover:bg-neutral-900 text-cyan-300 backdrop-blur-md transition-all"
+        style={{
+          boxShadow: panelOpen
+            ? "0 0 20px rgba(0,245,255,0.45)"
+            : "0 0 12px rgba(0,245,255,0.25)",
         }}
-      />
+      >
+        {panelOpen ? "×" : "🫧"}
+      </button>
+
+      {/* Hint inicial */}
+      {!panelOpen && (
+        <div className="fixed bottom-6 right-20 z-40 pointer-events-none text-xs text-cyan-300/70 font-mono select-none hidden sm:block">
+          pressione <kbd className="px-1.5 py-0.5 rounded bg-neutral-900/80 border border-cyan-400/30">L</kbd>
+        </div>
+      )}
+
+      {/* Painel deslizante */}
+      <div
+        className={`fixed top-0 right-0 z-40 h-screen transition-transform duration-300 ease-out ${
+          panelOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <ControlPanel
+          world={sim.world}
+          isRunning={sim.isRunning}
+          setRunning={sim.setRunning}
+          onReset={sim.reset}
+          onClear={sim.clear}
+          onSpawn={sim.spawn}
+          onSetTargetCount={sim.setTargetCount}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          particleCount={sim.world?.particles.length ?? 0}
+          fps={sim.fps}
+          setForceEnabled={sim.setForceEnabled}
+          setForceConfig={sim.setForceConfig}
+          setConstraintEnabled={sim.setConstraintEnabled}
+          setConstraintConfig={sim.setConstraintConfig}
+          renderOptions={renderer.options}
+          onRenderOptionChange={(key, value) => {
+            (renderer.options as unknown as Record<string, number | boolean | string>)[
+              key as string
+            ] = value;
+            forceRender((v) => v + 1);
+          }}
+        />
+      </div>
     </div>
   );
 }
