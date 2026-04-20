@@ -13,6 +13,32 @@ export function Simulator() {
   const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const [, forceRender] = useState(0);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [bgMode, setBgMode] = useState(false);
+
+  // Detecta ?mode=bg — usado quando o simulador roda como iframe de fundo
+  // em outro site (ex.: portfólio). Nesse modo, a UI nativa (botão 🫧 +
+  // hint) fica oculta — o site hospedeiro fornece a própria.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("mode") === "bg") setBgMode(true);
+  }, []);
+
+  // Ponte postMessage pra controle remoto do iframe pai.
+  // Aceita { type: "bolinhas:togglePanel" } e { type: "bolinhas:setPanel", open: boolean }.
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      const data = e.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "bolinhas:togglePanel") {
+        setPanelOpen((v) => !v);
+      } else if (data.type === "bolinhas:setPanel" && typeof data.open === "boolean") {
+        setPanelOpen(data.open);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
   useEffect(() => {
     const compute = () => {
@@ -112,23 +138,25 @@ export function Simulator() {
         />
       )}
 
-      {/* Botão flutuante toggle do painel */}
-      <button
-        onClick={() => setPanelOpen((v) => !v)}
-        aria-label={panelOpen ? "Fechar painel" : "Abrir painel (tecla L)"}
-        title={panelOpen ? "Fechar (L)" : "Abrir painel (L)"}
-        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-lg border border-cyan-400/40 bg-neutral-950/80 hover:bg-neutral-900 text-cyan-300 backdrop-blur-md transition-all"
-        style={{
-          boxShadow: panelOpen
-            ? "0 0 20px rgba(0,245,255,0.45)"
-            : "0 0 12px rgba(0,245,255,0.25)",
-        }}
-      >
-        {panelOpen ? "×" : "🫧"}
-      </button>
+      {/* Botão flutuante toggle do painel (oculto em modo bg — iframe pai fornece o próprio) */}
+      {!bgMode && (
+        <button
+          onClick={() => setPanelOpen((v) => !v)}
+          aria-label={panelOpen ? "Fechar painel" : "Abrir painel (tecla L)"}
+          title={panelOpen ? "Fechar (L)" : "Abrir painel (L)"}
+          className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-lg border border-cyan-400/40 bg-neutral-950/80 hover:bg-neutral-900 text-cyan-300 backdrop-blur-md transition-all"
+          style={{
+            boxShadow: panelOpen
+              ? "0 0 20px rgba(0,245,255,0.45)"
+              : "0 0 12px rgba(0,245,255,0.25)",
+          }}
+        >
+          {panelOpen ? "×" : "🫧"}
+        </button>
+      )}
 
       {/* Hint inicial */}
-      {!panelOpen && (
+      {!bgMode && !panelOpen && (
         <div className="fixed bottom-6 right-20 z-40 pointer-events-none text-xs text-cyan-300/70 font-mono select-none hidden sm:block">
           pressione <kbd className="px-1.5 py-0.5 rounded bg-neutral-900/80 border border-cyan-400/30">L</kbd>
         </div>
