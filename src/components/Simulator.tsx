@@ -25,7 +25,11 @@ export function Simulator() {
   }, []);
 
   // Ponte postMessage pra controle remoto do iframe pai.
-  // Aceita { type: "bolinhas:togglePanel" } e { type: "bolinhas:setPanel", open: boolean }.
+  // Aceita:
+  //   { type: "bolinhas:togglePanel" }
+  //   { type: "bolinhas:setPanel", open: boolean }
+  //   { type: "bolinhas:pointer", x, y, active } — coords relativas ao iframe
+  //   { type: "bolinhas:click", x, y } — dispara shockwave
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const data = e.data;
@@ -83,6 +87,32 @@ export function Simulator() {
     renderer,
     canvas: canvasEl,
   });
+
+  // Ponte de pointer externo (usado quando o iframe está com pointer-events:none
+  // e o site pai forwarda as coordenadas do mouse via postMessage).
+  useEffect(() => {
+    if (!sim.world) return;
+    const world = sim.world;
+    const onMessage = (e: MessageEvent) => {
+      const data = e.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "bolinhas:pointer") {
+        if (typeof data.x === "number" && typeof data.y === "number") {
+          world.pointer.x = data.x;
+          world.pointer.y = data.y;
+          world.pointer.active = data.active !== false;
+        } else {
+          world.pointer.active = false;
+        }
+      } else if (data.type === "bolinhas:click") {
+        if (typeof data.x === "number" && typeof data.y === "number") {
+          spawnShockwave(world, data.x, data.y);
+        }
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [sim.world]);
 
   // Pointer tracking → World.pointer
   useEffect(() => {
