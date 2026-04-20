@@ -19,6 +19,7 @@ Uma linha por força implementada. Atualizar sempre que registrar uma nova.
 | ID | Label | Arquivo | Descrição |
 |---|---|---|---|
 | `bounds` | Paredes | [bounds.ts](../src/lib/physics/constraints/bounds.ts) | Reflete na borda com restituição |
+| `collision` | Colisão | [collision.ts](../src/lib/physics/constraints/collision.ts) | Colisão partícula-partícula via spatial hash (resolveAll) |
 
 ## Integradores
 

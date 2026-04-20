@@ -80,8 +80,14 @@ export function tick(world: World, dt: number): void {
     world.integrator.step(p, dt);
 
     for (const constraint of world.constraints) {
-      if (constraint.enabled) constraint.resolve(p, world);
+      if (constraint.enabled) constraint.resolve?.(p, world);
     }
+  }
+
+  // Solvers globais (pairwise etc.) rodam depois que todos os corpos já
+  // estão com posição atualizada.
+  for (const constraint of world.constraints) {
+    if (constraint.enabled) constraint.resolveAll?.(world);
   }
 }
 

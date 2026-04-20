@@ -10,7 +10,7 @@ export function createWind(): Force<WindConfig> {
   return {
     id: "wind",
     label: "Vento",
-    enabled: true,
+    enabled: false,
     config: {
       strength: 1.5,
       frequency: 0.015,

@@ -44,7 +44,12 @@ interface UseSimulationResult {
 function seedParticles(world: World, count: number): void {
   const { width, height } = world.bounds;
   for (let i = 0; i < count; i++) {
-    addParticle(world, Math.random() * width, Math.random() * (height * 0.2));
+    const p = addParticle(world, Math.random() * width, Math.random() * height);
+    // drift suave inicial — direção aleatória, velocidade pequena
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 8 + Math.random() * 12;
+    p.velocity.x = Math.cos(angle) * speed;
+    p.velocity.y = Math.sin(angle) * speed;
   }
 }
 

@@ -10,7 +10,7 @@ export function createGravity(): Force<GravityConfig> {
   return {
     id: "gravity",
     label: "Gravidade",
-    enabled: true,
+    enabled: false,
     config: {
       strength: 0.05,
       inverted: false,
