@@ -6,6 +6,7 @@ import { MAX_PARTICLE_COUNT, MIN_PARTICLE_COUNT } from "@/types/simulation";
 import { PluginSection } from "./controls/PluginSection";
 import { Slider } from "./controls/Slider";
 import { Toggle } from "./controls/Toggle";
+import { GyroButton } from "./GyroButton";
 
 interface ControlPanelProps {
   world: World | null;
@@ -124,6 +125,7 @@ export function ControlPanel({
           step={50}
           onChange={onSetTargetCount}
         />
+        <GyroButton world={world} />
         <div className="flex gap-2">
           <button
             onClick={onReset}

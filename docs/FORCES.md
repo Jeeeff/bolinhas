@@ -12,6 +12,7 @@ Uma linha por força implementada. Atualizar sempre que registrar uma nova.
 | `turbulence` | Turbulência | [turbulence.ts](../src/lib/physics/forces/turbulence.ts) | `strength`, `scale`, `speed` | Flow field pseudo-noise global (sin/cos) |
 | `orbitalPull` | Órbita | [orbitalPull.ts](../src/lib/physics/forces/orbitalPull.ts) | `strength`, `spin` | Atração ao centro + componente tangencial |
 | `shockwave` | Onda | [shockwave.ts](../src/lib/physics/forces/shockwave.ts) | `thickness` | Empurra anel expansivo após clique |
+| `tilt` | Giroscópio | [tilt.ts](../src/lib/physics/forces/tilt.ts) | `strength` | Aceleração proporcional à inclinação do dispositivo |
 
 ## Constraints
 

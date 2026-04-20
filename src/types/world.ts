@@ -10,6 +10,12 @@ export interface PointerState {
   buttons: number;
 }
 
+export interface TiltState {
+  x: number; // -1..1 (gamma normalizado: inclinação lateral)
+  y: number; // -1..1 (beta normalizado: inclinação frente/trás)
+  active: boolean;
+}
+
 export interface Shockwave {
   x: number;
   y: number;
@@ -27,5 +33,6 @@ export interface World {
   bounds: WorldBounds;
   elapsed: number;
   pointer: PointerState;
+  tilt: TiltState;
   shockwaves: Shockwave[];
 }

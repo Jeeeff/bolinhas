@@ -7,6 +7,7 @@ import { createVortex } from "./vortex";
 import { createTurbulence } from "./turbulence";
 import { createOrbitalPull } from "./orbitalPull";
 import { createShockwave } from "./shockwave";
+import { createTilt } from "./tilt";
 
 export function createDefaultForces(): Force[] {
   return [
@@ -18,6 +19,7 @@ export function createDefaultForces(): Force[] {
     createTurbulence(),
     createOrbitalPull(),
     createShockwave(),
+    createTilt(),
   ];
 }
 
@@ -30,4 +32,5 @@ export {
   createTurbulence,
   createOrbitalPull,
   createShockwave,
+  createTilt,
 };

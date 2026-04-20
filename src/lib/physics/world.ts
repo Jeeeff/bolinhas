@@ -24,6 +24,7 @@ export function createWorld(options: WorldOptions): World {
     bounds: options.bounds,
     elapsed: 0,
     pointer: { x: 0, y: 0, active: false, buttons: 0 },
+    tilt: { x: 0, y: 0, active: false },
     shockwaves: [],
   };
 }
