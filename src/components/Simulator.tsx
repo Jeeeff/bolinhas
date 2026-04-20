@@ -78,15 +78,26 @@ export function Simulator() {
       const rect = canvasEl.getBoundingClientRect();
       spawnShockwave(world, e.clientX - rect.left, e.clientY - rect.top);
     };
+    const handleUp = (e: PointerEvent) => {
+      // Em touch, o "dedo saiu" = ponteiro inativo. Senão o mouseAttractor
+      // continua puxando tudo pro último toque e mata o efeito de giroscópio.
+      if (e.pointerType === "touch") {
+        handleLeave();
+      } else {
+        handleMove(e);
+      }
+    };
     canvasEl.addEventListener("pointermove", handleMove);
     canvasEl.addEventListener("pointerleave", handleLeave);
+    canvasEl.addEventListener("pointercancel", handleLeave);
     canvasEl.addEventListener("pointerdown", handleDown);
-    canvasEl.addEventListener("pointerup", handleMove);
+    canvasEl.addEventListener("pointerup", handleUp);
     return () => {
       canvasEl.removeEventListener("pointermove", handleMove);
       canvasEl.removeEventListener("pointerleave", handleLeave);
+      canvasEl.removeEventListener("pointercancel", handleLeave);
       canvasEl.removeEventListener("pointerdown", handleDown);
-      canvasEl.removeEventListener("pointerup", handleMove);
+      canvasEl.removeEventListener("pointerup", handleUp);
     };
   }, [canvasEl, sim.world]);
 
